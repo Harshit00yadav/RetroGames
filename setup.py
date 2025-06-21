@@ -19,7 +19,7 @@ if platform == "linux":
     print("No dependencies required")
 elif platform == "win32":
     try:
-        system("pip install -r requirements.txt")
+        system(r"genv\scripts\activate && pip install -r requirements.txt")
     except Exception as e:
         print("[ ERROR ]", e)
         exit()
