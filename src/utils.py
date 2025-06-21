@@ -1,9 +1,13 @@
 def draw_border(stdscr, start, dimentions):
-    stdscr.addstr(start[0], start[1], "┌"+"─"*(dimentions[1]-2)+"┐")
-    for i in range(1, dimentions[0]):
+    stdscr.addstr(start[0], start[1], "┌"+"─"*(dimentions[1]-1)+"┐")
+    for i in range(start[0] + 1, start[0]+dimentions[0]):
         stdscr.addstr(i, start[1], "│")
-        stdscr.addstr(i, dimentions[1] - 1, "│")
-    stdscr.addstr(dimentions[0], start[1], "└"+"─"*(dimentions[1]-2)+"┘")
+        stdscr.addstr(i, start[1] + dimentions[1], "│")
+    stdscr.addstr(
+        start[0] + dimentions[0],
+        start[1],
+        "└"+"─"*(dimentions[1]-1)+"┘"
+    )
 
 
 def load_ascii(file_path):
@@ -17,3 +21,9 @@ def blit_ascii_stdout(y, x, ascii, stdscr):
         stdscr.addstr(y+i, x, line)
 
 
+def populate_windows(stdscr):
+    while True:
+        try:
+            stdscr.addch('0')
+        except Exception:
+            break
