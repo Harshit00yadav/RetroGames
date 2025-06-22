@@ -3,12 +3,13 @@ from curses import wrapper
 from src.utils import load_ascii, blit_ascii_stdout, draw_border
 from src.games_menu import start_menu_loop
 from src.snake import start_snake_game
+from src.shooter import start_shooter_game
 
 
 games = [
     "  Snake  ",
+    "  Shooter  ",
     "  Tetris  ",
-    "  Convey's game of life  ",
     "  [ EXIT ]  "
 ]
 
@@ -43,6 +44,8 @@ def main(stdscr):
         game_id = start_menu_loop(surface, games)
         if game_id == 0:
             start_snake_game(surface)
+        elif game_id == 1:
+            start_shooter_game(surface)
         else:
             break
 
