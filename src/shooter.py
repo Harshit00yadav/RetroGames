@@ -2,21 +2,37 @@ import curses
 from src.utils import load_sprites, blit_spite_stdout
 
 
+class Map:
+    def __init__(self, glevel: int, width: int) -> None:
+        self.glevel = glevel
+        self.width = width
+
+    def render(self, stdscr) -> None:
+        stdscr.addstr(self.glevel, 0, "-" * self.width)
+
+
 class Player:
-    def __init__(self, y, x):
+    def __init__(self, y, x) -> None:
         self.y = y
         self.x = x
         self.sprites = {
             "walk": {},
-            "idle": {}
+            "idle": {},
+            "jump": {}
         }
+        self.can_jump = True
         self.sprite_type = "idle"
         self.frame_no = 0
         self.sprites["walk"]["meta"], self.sprites["walk"]["data"] = load_sprites("resources/man_walk.txt")
         self.sprites["idle"]["meta"], self.sprites["idle"]["data"] = load_sprites("resources/man_idle.txt")
+        self.sprites["jump"]["meta"], self.sprites["jump"]["data"] = load_sprites("resources/man_jump.txt")
 
     def update(self):
         self.frame_no += 1
+        if self.sprite_type == "jump" and self.frame_no >= self.sprites[self.sprite_type]["meta"]["frames"]:
+            self.sprite_type = "walk"
+            self.y += 1
+            self.can_jump = True
         self.frame_no %= self.sprites[self.sprite_type]["meta"]["frames"]
 
     def render(self, stdscr):
@@ -34,15 +50,11 @@ def check_inputs(key, player):
     global EXIT
     if key == ord('q'):
         EXIT = True
-    elif key == ord('w'):
+    elif key == ord(' ') and player.can_jump:
+        player.sprite_type = "jump"
+        player.frame_no = 0
         player.y -= 1
-    elif key == ord('s'):
-        player.y += 1
-    elif key == ord('d'):
-        player.sprite_type = "walk"
-        player.x += 1
-    elif key == ord('a'):
-        player.x -= 1
+        player.can_jump = False
 
 
 def start_shooter_game(stdscr):
@@ -51,10 +63,12 @@ def start_shooter_game(stdscr):
     score = 0
     height, width = stdscr.getmaxyx()
     player = Player(height//2 - 2, width//5)
+    level_1 = Map(height//2 + 2, width)
     while not EXIT:
         stdscr.clear()
         player.update()
         player.render(stdscr)
+        level_1.render(stdscr)
         try:
             stdscr.addstr(0, 0, f"score: {score}")
         except Exception as e:
