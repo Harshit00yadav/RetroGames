@@ -1,4 +1,4 @@
-{"height":4,"width":10,"frames":6}
+{"height":4,"width":4,"frames":6}
  o
 <|-
 _/\
