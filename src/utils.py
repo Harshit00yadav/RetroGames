@@ -30,8 +30,15 @@ def load_sprites(file_path):
 def blit_spite_stdout(y, x, meta, data, frame_no, stdscr):
     start = frame_no * meta["height"]
     end = start + meta["height"]
+    max_y, max_x = stdscr.getmaxyx()
     for i, line in enumerate(data[start:end]):
-        stdscr.addstr(y+i, x, line)
+        if x + len(line) < 0 or y + i < 0:
+            continue
+        rendered_line = line[max(0, -x):] if x < 0 else line
+        if x >= max_x:
+            continue
+        rendered_line = rendered_line[:max_x - x]
+        stdscr.addstr(y+i, max(0, x), rendered_line)
 
 
 def blit_ascii_stdout(y, x, ascii, stdscr):
