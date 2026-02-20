@@ -11,10 +11,25 @@ class Map:
         stdscr.addstr(self.glevel, 0, "-" * self.width)
 
 
-class Player:
+class WorldObject:
+    def __init__(self, y, x):
+        self.y, self.x = y, x
+        self.frame_counter = 0
+
+    def update(self, after_frames=5):
+        self.frame_counter += 1
+        if self.frame_counter % after_frames == 0:
+            self.frame_counter = 0
+            return True
+        return False
+
+    def render(self, stdscr):
+        pass
+
+
+class Player(WorldObject):
     def __init__(self, y, x) -> None:
-        self.y = y
-        self.x = x
+        super().__init__(y, x)
         self.sprites = {
             "walk": {},
             "idle": {},
@@ -46,6 +61,29 @@ class Player:
         )
 
 
+class Hurdle(WorldObject):
+    def __init__(self, y, x):
+        super().__init__(y, x)
+        self.sprite = {}
+        self.sprite["meta"], self.sprite["data"] = load_sprites("resources/hurdle.txt")
+        self.frame_no = 0
+
+    def update(self):
+        if super().update(after_frames=5):
+            self.frame_no += 1
+            self.frame_no %= self.sprite["meta"]["frames"]
+
+    def render(self, stdscr):
+        blit_spite_stdout(
+            self.y,
+            self.x,
+            self.sprite["meta"],
+            self.sprite["data"],
+            self.frame_no,
+            stdscr
+        )
+
+
 def check_inputs(key, player):
     global EXIT
     if key == ord('q'):
@@ -63,11 +101,22 @@ def start_shooter_game(stdscr):
     score = 0
     height, width = stdscr.getmaxyx()
     player = Player(height//2 - 2, width//5)
+    wordobjects = []
     level_1 = Map(height//2 + 2, width)
+
+    # _________ initializing entities _____________
+    wordobjects.append(player)
+    wordobjects.append(Hurdle(height//2, width//2))
+    # _____________________________________________
+
     while not EXIT:
         stdscr.clear()
-        player.update()
-        player.render(stdscr)
+        for obj in wordobjects:
+            if (player.sprite_type == "walk"):
+                # TODO: make everything move except player
+                pass
+            obj.update()
+            obj.render(stdscr)
         level_1.render(stdscr)
         try:
             stdscr.addstr(0, 0, f"score: {score}")
